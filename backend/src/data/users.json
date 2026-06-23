@@ -1,0 +1,12 @@
+[
+  {
+    "id": "1782217710249",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "johndome@uni.edu",
+    "program": "IT",
+    "role": "Student",
+    "password": "$2a$10$cX5hzVkkRpYtrjmt3/qjKeG4Ii4bTrisINNBTyO8qdXlF8C/Vus62",
+    "avatarUrl": null
+  }
+]

@@ -1,0 +1,52 @@
+name: Build Frontend and Backend
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Archive frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Build backend (install deps)
+        working-directory: backend
+        run: |
+          npm ci
+
+      - name: Archive backend
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: backend
+
+      # Optional: deploy step (fill provider-specific commands and secrets)
+      - name: Deploy (optional)
+        if: false
+        env:
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          echo "Add provider-specific deploy commands here, or enable this step and set required secrets."

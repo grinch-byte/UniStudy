@@ -1,0 +1,16 @@
+{
+  "name": "unistudy",
+  "version": "1.0.0",
+  "description": "UniStudy is a full-stack university collaboration platform designed to help students and lecturers connect, create study groups, schedule learning sessions, and share knowledge.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
