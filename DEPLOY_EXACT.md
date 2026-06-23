@@ -12,53 +12,52 @@ git branch -M main
 git push -u origin main
 ```
 
-## 2. Deploy Frontend to Vercel
+## 2. Option A — Vercel monorepo deployment
 
 1. Go to https://vercel.com
 2. Click `Continue with GitHub`
 3. Select the `UniStudy` repo
-4. Set these values:
+4. Use the repository root so Vercel reads `vercel.json`
+5. Add this environment variable:
 
-- Framework Preset: `Vite`
-- Root Directory: `frontend`
+- `VITE_API_URL` = `/_/backend`
 
-5. Under **Environment Variables** add:
+6. Deploy
 
-- Name: `VITE_API_URL`
-- Value: `https://<your-render-backend-url>`
-- Environment: `Production`
+The frontend service will use `/_/backend` for API calls, and the backend service will be available at the Vercel route prefix.
 
-6. Click `Deploy`
+## 3. Option B — Vercel frontend + Render backend
 
-Your frontend URL will look like:
-
-`https://unistudy.vercel.app`
-
-## 3. Deploy Backend to Render
+### Deploy backend to Render
 
 1. Go to https://render.com
 2. Click `New` → `Web Service`
-3. Connect GitHub and select `UniStudy`
-4. Set these values:
-
-- Root Directory: `backend`
-- Environment: `Node`
-- Build Command: `npm install`
-- Start Command: `npm start`
-
-5. Click `Create Web Service`
+3. Connect your GitHub repo and select `UniStudy`
+4. Set the service root directory to `backend`
+5. Set the build command to `npm install`
+6. Set the start command to `npm start`
+7. Deploy the service
 
 Your backend URL will look like:
 
-`https://unistudy-api.onrender.com`
+```text
+https://<your-backend>.onrender.com
+```
 
-## 4. Set the backend URL in Vercel
+### Deploy frontend to Vercel
 
-In the Vercel project settings, update `VITE_API_URL` to:
+1. Go to https://vercel.com
+2. Click `Continue with GitHub`
+3. Select the `UniStudy` repo
+4. Set Root Directory to `frontend`
+5. Set Framework Preset to `Vite`
+6. Add this environment variable:
 
-`https://unistudy-api.onrender.com`
+- `VITE_API_URL` = `https://<your-backend>.onrender.com`
 
-## 5. No frontend code edits required
+7. Deploy
+
+## 4. Frontend API configuration
 
 Your current frontend already uses:
 
@@ -66,31 +65,30 @@ Your current frontend already uses:
 const apiUrl = import.meta.env.VITE_API_URL || ''
 ```
 
-So you do not need to modify `frontend/src/pages/Register.jsx`, `Login.jsx`, or `Profile.jsx`.
+No frontend code changes are needed for deployment.
 
-## 6. Push any changes
+## 5. GitHub deploy workflow
 
-If you make changes, push them:
+This repo already contains `.github/workflows/deploy-vercel-render.yml`.
 
-```bash
-git add .
-git commit -m "Deploy ready"
-git push
-```
+If you want CI-triggered deploys, set these GitHub repository secrets:
 
-Vercel will automatically redeploy the frontend.
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+- `RENDER_API_KEY`
+- `RENDER_SERVICE_ID`
 
-## 7. Confirm deployment
+## 6. Verify deployment
 
-Open the Vercel URL and verify that the app loads.
-Make sure the backend URL is correct in `VITE_API_URL`.
+- Open the Vercel frontend URL
+- Confirm the login page loads
+- Confirm the frontend can call the backend
+- If using Render, verify the backend service is live
 
-## 8. If the front end can’t reach the backend
+## 7. Troubleshooting
 
-1. Confirm `VITE_API_URL` is set to your Render URL in Vercel.
-2. Confirm the Render service is live.
-3. Confirm CORS is allowed in the backend (`cors()` is already enabled).
-
----
-
-If you want, I can also add direct `Vercel CLI` and `Render CLI` commands for advanced deploys.
+- If frontend can’t reach the backend, verify `VITE_API_URL` in Vercel
+- If using Option A, `VITE_API_URL` must be `/_/backend`
+- If using Option B, `VITE_API_URL` must be your Render backend URL
+- CORS is already enabled in the backend

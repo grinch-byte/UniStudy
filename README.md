@@ -239,6 +239,26 @@ Profile
 
 Testing performed:
 
+## 9. Deployment
+
+This repository supports two deployment modes:
+
+- Vercel monorepo with `frontend` and `backend` together using `vercel.json`
+- Vercel frontend + Render backend with `frontend` hosted on Vercel and `backend` hosted on Render
+
+See `DEPLOY.md` and `DEPLOY_EXACT.md` for exact deployment instructions.
+
+## 9. Deployment
+
+For online deployment, see `DEPLOY.md` and `DEPLOY_EXACT.md`.
+
+Two supported deployment patterns:
+
+- Option A: Vercel monorepo with `frontend` and `backend` in the same repo
+- Option B: Vercel frontend + Render backend using separate services
+
+The frontend reads backend configuration from `VITE_API_URL`, so the production deployment only needs the correct environment variable setting.
+
 ✔ Registration form
 
 ✔ Backend connection
