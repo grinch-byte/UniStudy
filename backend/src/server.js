@@ -4,6 +4,8 @@ const fs = require("fs")
 const path = require("path")
 
 const authRoutes = require("./routes/authRoutes")
+const groupsRoutes = require("./routes/groupsRoutes")
+const sessionsRoutes = require("./routes/sessionsRoutes")
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -12,6 +14,8 @@ const frontendDist = path.resolve(__dirname, "../../frontend/dist")
 app.use(cors())
 app.use(express.json())
 app.use("/auth", authRoutes)
+app.use("/groups", groupsRoutes)
+app.use("/sessions", sessionsRoutes)
 
 if (process.env.NODE_ENV === "production") {
   if (fs.existsSync(frontendDist)) {

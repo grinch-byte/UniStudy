@@ -21,8 +21,12 @@ function saveUsers(users){
 	fs.writeFileSync(usersFile, JSON.stringify(users, null, 2))
 }
 
+function generateReferralCode(){
+	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+}
+
 function register(req, res){
-	const { firstName, lastName, email, program, role, password } = req.body
+	const { firstName, lastName, email, program, role, password, referralCode } = req.body
 
 	if(!email || !password) return res.status(400).json({ message: 'Email and password required' })
 
@@ -32,6 +36,7 @@ function register(req, res){
 		return res.status(400).json({ message: 'Email already registered' })
 	}
 
+	const referrer = referralCode ? users.find(u => u.referralCode === referralCode) : null
 	const hashed = bcrypt.hashSync(password, 10)
 
 	const user = {
@@ -42,7 +47,9 @@ function register(req, res){
 		program: program || '',
 		role: role || 'Student',
 		password: hashed,
-		avatarUrl: null
+		avatarUrl: null,
+		referralCode: generateReferralCode(),
+		referredBy: referrer ? referrer.id : null
 	}
 
 	users.push(user)
@@ -50,7 +57,21 @@ function register(req, res){
 
 	const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'devsecret', { expiresIn: '2h' })
 
-	res.json({ message: 'Account created', token, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, program: user.program, role: user.role, avatarUrl: user.avatarUrl } })
+	res.json({
+		message: 'Account created',
+		token,
+		user: {
+			id: user.id,
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			program: user.program,
+			role: user.role,
+			avatarUrl: user.avatarUrl,
+			referralCode: user.referralCode,
+			referredBy: user.referredBy
+		}
+	})
 }
 
 function login(req, res){
@@ -66,13 +87,37 @@ function login(req, res){
 
 	const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'devsecret', { expiresIn: '2h' })
 
-	res.json({ message: 'Logged in', token, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, program: user.program, role: user.role, avatarUrl: user.avatarUrl } })
+	res.json({
+		message: 'Logged in',
+		token,
+		user: {
+			id: user.id,
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			program: user.program,
+			role: user.role,
+			avatarUrl: user.avatarUrl,
+			referralCode: user.referralCode,
+			referredBy: user.referredBy
+		}
+	})
 }
 
 function getUsers(req, res){
 	const users = loadUsers()
 	// hide passwords
-	const out = users.map(u => ({ id: u.id, firstName: u.firstName, lastName: u.lastName, email: u.email, program: u.program, role: u.role, avatarUrl: u.avatarUrl }))
+	const out = users.map(u => ({
+		id: u.id,
+		firstName: u.firstName,
+		lastName: u.lastName,
+		email: u.email,
+		program: u.program,
+		role: u.role,
+		avatarUrl: u.avatarUrl,
+		referralCode: u.referralCode,
+		referredBy: u.referredBy
+	}))
 	res.json(out)
 }
 
@@ -85,8 +130,9 @@ function me(req, res){
 		const users = loadUsers()
 		const user = users.find(u => u.id === payload.id)
 		if(!user) return res.status(404).json({ message: 'User not found' })
+		const referrals = users.filter(u => u.referredBy === user.id).length
 		const { password, ...safe } = user
-		return res.json(safe)
+		return res.json({ ...safe, referralCount: referrals })
 	}catch(e){
 		return res.status(401).json({ message: 'Invalid token' })
 	}

@@ -1,10 +1,12 @@
 import { useState } from "react"
-import { useNavigate, Navigate } from "react-router-dom"
+import { useNavigate, useLocation, Navigate } from "react-router-dom"
 
 export default function Register() {
 
   const token = localStorage.getItem('token')
   const navigate = useNavigate()
+  const location = useLocation()
+  const initialReferral = new URLSearchParams(location.search).get('ref') || ''
 
   if (token) {
     return <Navigate to="/profile" replace />
@@ -16,8 +18,11 @@ export default function Register() {
     email: "",
     program: "",
     role: "Student",
-    password: ""
+    password: "",
+    referralCode: initialReferral
   })
+
+  const hasReferral = Boolean(initialReferral)
 
   function update(e) {
 
@@ -84,6 +89,12 @@ export default function Register() {
 
       <h1>Create UniStudy Account</h1>
 
+      {hasReferral && (
+        <p style={{ color: '#1a73e8', marginBottom: '16px' }}>
+          You are joining with a referral code. Your referrer will be credited when your account is created.
+        </p>
+      )}
+
       <form onSubmit={submit}>
 
         <input
@@ -122,6 +133,15 @@ export default function Register() {
 
         <br /><br />
 
+        <input
+          name="referralCode"
+          placeholder="Referral Code (optional)"
+          value={form.referralCode}
+          onChange={update}
+        />
+
+        <br /><br />
+
         <select
           name="role"
           value={form.role}
@@ -148,6 +168,10 @@ export default function Register() {
         </button>
 
       </form>
+
+      <p style={{ marginTop: '16px' }}>
+        Already have an account? <a href="/login">Login</a>
+      </p>
 
     </main>
 

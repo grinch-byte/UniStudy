@@ -49,6 +49,10 @@ export default function Login(){
 
 			</form>
 
+			<p style={{marginTop: '12px'}}>
+				Don't have an account? <Link to="/register">Register</Link>
+			</p>
+
 
 		</main>
 	)
