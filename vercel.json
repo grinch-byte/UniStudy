@@ -10,14 +10,14 @@
       "routePrefix": "/_/backend"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/_/backend/(.*)",
-      "destination": "/_/backend/$1"
+      "src": "^/_/backend/(.*)$",
+      "dest": "/_/backend/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "^/(.*)$",
+      "dest": "/index.html"
     }
   ]
 }
