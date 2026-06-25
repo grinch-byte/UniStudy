@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "1782288493558",
+    "name": "IT",
+    "description": "Unlock infinite posssibilities",
+    "createdBy": "1782217710249",
+    "members": [
+      "1782217710249"
+    ],
+    "createdAt": "2026-06-24T08:08:13.558Z"
+  },
+  {
+    "id": "1782292999123",
+    "name": "IT",
+    "description": "",
+    "createdBy": "1782217710249",
+    "members": [
+      "1782217710249"
+    ],
+    "createdAt": "2026-06-24T09:23:19.123Z"
+  },
+  {
+    "id": "1782306047970",
+    "name": "Ahhh",
+    "description": "",
+    "createdBy": "1782217710249",
+    "members": [
+      "1782217710249"
+    ],
+    "createdAt": "2026-06-24T13:00:47.972Z"
+  }
+]

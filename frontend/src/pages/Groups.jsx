@@ -1,109 +1,394 @@
 import { useState, useEffect } from "react"
 
 export default function Groups() {
-  const [groups, setGroups] = useState([])
-  const [formData, setFormData] = useState({ name: "", description: "" })
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
 
-  const apiUrl = import.meta.env.VITE_API_URL || ''
-  const token = localStorage.getItem('token')
+const [groups, setGroups] =
+useState([])
 
-  useEffect(() => {
-    fetchGroups()
-  }, [])
+const [showForm, setShowForm] =
+useState(false)
 
-  async function fetchGroups(){
-    try{
-      setLoading(true)
-      const res = await fetch(`${apiUrl}/groups`, {
-        headers: { Authorization: 'Bearer ' + token }
-      })
-      const data = await res.json()
-      if(!res.ok) return alert(data.message || 'Failed to fetch groups')
-      setGroups(data)
-    }catch(err){
-      console.error(err)
-      alert('Failed to fetch groups')
-    }finally{
-      setLoading(false)
-    }
-  }
+const [formData, setFormData] =
+useState({
+name:"",
+description:""
+})
 
-  async function handleCreateGroup(e){
-    e.preventDefault()
-    if(!formData.name) return alert('Group name is required')
+const apiUrl =
+import.meta.env.VITE_API_URL || ""
 
-    try{
-      const res = await fetch(`${apiUrl}/groups`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token
-        },
-        body: JSON.stringify(formData)
-      })
-      const data = await res.json()
-      if(!res.ok) return alert(data.message || 'Failed to create group')
+const token =
+localStorage.getItem("token")
 
-      alert('Group created!')
-      setFormData({ name: "", description: "" })
-      setShowForm(false)
-      fetchGroups()
-    }catch(err){
-      console.error(err)
-      alert('Failed to create group')
-    }
-  }
+useEffect(() => {
+fetchGroups()
+}, [])
 
-  if(loading) return (
-    <main>
-      <h1>Your Groups</h1>
-      <p>Loading...</p>
-    </main>
-  )
+async function fetchGroups() {
 
-  return (
-    <main>
-      <h1>Your Groups</h1>
+try {
 
-      <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '16px' }}>
-        {showForm ? 'Cancel' : 'Create Group'}
-      </button>
+const res =
+await fetch(
+`${apiUrl}/groups`,
+{
+headers:{
+Authorization:
+"Bearer " + token
+}
+}
+)
 
-      {showForm && (
-        <form onSubmit={handleCreateGroup} style={{ marginBottom: '16px', padding: '12px', border: '1px solid #ccc' }}>
-          <input
-            type="text"
-            placeholder="Group name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <br /><br />
-          <textarea
-            placeholder="Group description (optional)"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            style={{ width: '100%', minHeight: '80px' }}
-          />
-          <br /><br />
-          <button type="submit">Create</button>
-        </form>
-      )}
+const data =
+await res.json()
 
-      {groups.length === 0 ? (
-        <p>You have not joined any groups.</p>
-      ) : (
-        <div>
-          {groups.map(group => (
-            <div key={group.id} style={{ padding: '12px', border: '1px solid #ddd', marginBottom: '8px' }}>
-              <h3>{group.name}</h3>
-              <p>{group.description}</p>
-              <p><strong>Members:</strong> {group.members?.length || 0}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
-  )
+if(res.ok){
+
+setGroups(data)
+
+}
+
+}
+
+catch{
+
+alert(
+"Failed to load groups"
+)
+
+}
+
+}
+
+async function createGroup(e){
+
+e.preventDefault()
+
+try{
+
+const res =
+await fetch(
+`${apiUrl}/groups`,
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+Authorization:
+"Bearer " + token
+
+},
+
+body:
+JSON.stringify(formData)
+
+}
+)
+
+const data =
+await res.json()
+
+if(res.ok){
+
+alert(
+"Group created"
+)
+
+setFormData({
+name:"",
+description:""
+})
+
+setShowForm(false)
+
+fetchGroups()
+
+}
+
+else{
+
+alert(
+data.message
+)
+
+}
+
+}
+
+catch{
+
+alert(
+"Create failed"
+)
+
+}
+
+}
+
+async function deleteGroup(id){
+
+const confirmDelete =
+window.confirm(
+"Delete this group?"
+)
+
+if(
+!confirmDelete
+)
+return
+
+try{
+
+const res =
+await fetch(
+
+`${apiUrl}/groups/${id}`,
+
+{
+
+method:
+"DELETE",
+
+headers:{
+Authorization:
+"Bearer " + token
+}
+
+}
+
+)
+
+if(res.ok){
+
+fetchGroups()
+
+}
+
+else{
+
+alert(
+"Delete failed"
+)
+
+}
+
+}
+
+catch{
+
+alert(
+"Delete failed"
+)
+
+}
+
+}
+
+return (
+
+<main>
+
+<h1>
+
+Your Groups
+
+</h1>
+
+<button
+onClick={() =>
+setShowForm(
+!showForm
+)
+}
+
+>
+
+{showForm
+?
+"Cancel"
+:
+"Create Group"
+}
+
+</button>
+
+<br />
+<br />
+
+{showForm && (
+
+<form
+onSubmit={
+createGroup
+}
+>
+
+<input
+
+placeholder=
+"Group Name"
+
+value={
+formData.name
+}
+
+onChange={(e)=>
+
+setFormData({
+
+...formData,
+
+name:
+e.target.value
+
+})
+
+}
+
+/>
+
+<br />
+<br />
+
+<textarea
+
+placeholder=
+"Description"
+
+value={
+formData.description
+}
+
+onChange={(e)=>
+
+setFormData({
+
+...formData,
+
+description:
+e.target.value
+
+})
+
+}
+
+/>
+
+<br />
+<br />
+
+<button
+type="submit"
+>
+
+Create
+
+</button>
+
+</form>
+
+)}
+
+<br />
+
+{groups.length===0 ? (
+
+<p>
+
+No groups yet
+
+</p>
+
+) : (
+
+groups.map(
+(group)=>(
+
+<div
+
+key={
+group.id
+}
+
+style={{
+
+border:
+"1px solid #ddd",
+
+padding:
+"12px",
+
+marginBottom:
+"12px",
+
+cursor:
+"pointer"
+
+}}
+
+onClick={()=>
+
+window.location.href=
+"/chat"
+
+}
+
+>
+
+<h3>
+
+{group.name}
+
+</h3>
+
+<p>
+
+{group.description}
+
+</p>
+
+<p>
+
+Members:
+
+{" "}
+
+{group.members?.length || 0}
+
+</p>
+
+<button
+
+onClick={(e)=>{
+
+e.stopPropagation()
+
+deleteGroup(
+group.id
+)
+
+}}
+
+>
+
+Delete
+
+</button>
+
+</div>
+
+)
+
+)
+
+)}
+
+</main>
+
+)
+
 }

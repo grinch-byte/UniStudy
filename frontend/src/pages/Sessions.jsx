@@ -1,123 +1,598 @@
-import { useState, useEffect } from "react"
+import { useState, useRef } from "react"
 
 export default function Sessions() {
-  const [sessions, setSessions] = useState([])
-  const [formData, setFormData] = useState({ title: "", description: "", startTime: "", duration: 60 })
-  const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
 
-  const apiUrl = import.meta.env.VITE_API_URL || ''
-  const token = localStorage.getItem('token')
+const formRef =
+useRef(null)
 
-  useEffect(() => {
-    fetchSessions()
-  }, [])
+const [currentDate,setCurrentDate] =
+useState(
+new Date()
+)
 
-  async function fetchSessions(){
-    try{
-      setLoading(true)
-      const res = await fetch(`${apiUrl}/sessions`, {
-        headers: { Authorization: 'Bearer ' + token }
-      })
-      const data = await res.json()
-      if(!res.ok) return alert(data.message || 'Failed to fetch sessions')
-      setSessions(data)
-    }catch(err){
-      console.error(err)
-      alert('Failed to fetch sessions')
-    }finally{
-      setLoading(false)
-    }
-  }
+const [sessions,setSessions] =
+useState([])
 
-  async function handleCreateSession(e){
-    e.preventDefault()
-    if(!formData.title) return alert('Session title is required')
+const [form,setForm] =
+useState({
 
-    try{
-      const res = await fetch(`${apiUrl}/sessions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token
-        },
-        body: JSON.stringify({ ...formData, duration: parseInt(formData.duration) })
-      })
-      const data = await res.json()
-      if(!res.ok) return alert(data.message || 'Failed to create session')
+title:"",
+type:"Online",
+date:"",
+time:"",
+location:"",
+link:""
 
-      alert('Session created!')
-      setFormData({ title: "", description: "", startTime: "", duration: 60 })
-      setShowForm(false)
-      fetchSessions()
-    }catch(err){
-      console.error(err)
-      alert('Failed to create session')
-    }
-  }
+})
 
-  if(loading) return (
-    <main>
-      <h1>Sessions</h1>
-      <p>Loading...</p>
-    </main>
-  )
+const month =
+currentDate.toLocaleString(
+"default",
+{
+month:"long"
+}
+)
 
-  return (
-    <main>
-      <h1>Sessions</h1>
+const year =
+currentDate.getFullYear()
 
-      <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '16px' }}>
-        {showForm ? 'Cancel' : 'Create Session'}
-      </button>
+const totalDays =
+new Date(
+year,
+currentDate.getMonth()+1,
+0
+).getDate()
 
-      {showForm && (
-        <form onSubmit={handleCreateSession} style={{ marginBottom: '16px', padding: '12px', border: '1px solid #ccc' }}>
-          <input
-            type="text"
-            placeholder="Session title"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          />
-          <br /><br />
-          <textarea
-            placeholder="Session description (optional)"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            style={{ width: '100%', minHeight: '80px' }}
-          />
-          <br /><br />
-          <input
-            type="datetime-local"
-            value={formData.startTime}
-            onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-          />
-          <br /><br />
-          <label>Duration (minutes):</label>
-          <input
-            type="number"
-            value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-          />
-          <br /><br />
-          <button type="submit">Create</button>
-        </form>
-      )}
+const days =
+Array.from(
+{
+length:totalDays
+},
+(_,i)=>i+1
+)
 
-      {sessions.length === 0 ? (
-        <p>No upcoming sessions.</p>
-      ) : (
-        <div>
-          {sessions.map(session => (
-            <div key={session.id} style={{ padding: '12px', border: '1px solid #ddd', marginBottom: '8px' }}>
-              <h3>{session.title}</h3>
-              <p>{session.description}</p>
-              <p><strong>Duration:</strong> {session.duration} minutes</p>
-              <p><strong>Participants:</strong> {session.participants?.length || 0}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </main>
-  )
+function previousMonth(){
+
+setCurrentDate(
+
+new Date(
+year,
+currentDate.getMonth()-1,
+1
+)
+
+)
+
+}
+
+function nextMonth(){
+
+setCurrentDate(
+
+new Date(
+year,
+currentDate.getMonth()+1,
+1
+)
+
+)
+
+}
+
+function selectDay(day){
+
+const selectedDate =
+
+`${year}-${String(
+currentDate.getMonth()+1
+).padStart(2,"0")}-${String(
+day
+).padStart(2,"0")}`
+
+setForm({
+
+...form,
+
+date:selectedDate
+
+})
+
+formRef.current
+?.scrollIntoView({
+
+behavior:
+"smooth"
+
+})
+
+}
+
+function update(e){
+
+setForm({
+
+...form,
+
+[e.target.name]: e.target.value
+
+})
+
+}
+
+function createSession(e){
+
+e.preventDefault()
+
+setSessions([
+...sessions,
+form
+])
+
+setForm({
+
+title:"",
+type:"Online",
+date:"",
+time:"",
+location:"",
+link:""
+
+})
+
+}
+
+function openSession(session){
+
+alert(
+
+`${session.title}
+
+${session.date}
+
+${session.time}`
+
+)
+
+}
+
+return (
+
+<main
+style={{
+padding:"30px",
+background:"#f6f8fc"
+}}
+>
+
+<h1>
+
+Sessions
+
+</h1>
+
+<section>
+
+<h2>
+
+Upcoming Events
+
+</h2>
+
+{sessions.length===0 ? (
+
+<div
+style={{
+background:"white",
+padding:"20px",
+borderRadius:"12px"
+}}
+>
+
+No upcoming events
+
+</div>
+
+) : (
+
+sessions.map(
+(session,index)=>(
+
+<div
+
+key={index}
+
+onClick={()=>
+openSession(
+session
+)
+}
+
+style={{
+
+background:"white",
+
+padding:"16px",
+
+marginBottom:"12px",
+
+borderRadius:"12px",
+
+cursor:"pointer"
+
+}}
+
+>
+
+<h3>
+
+{session.title}
+
+</h3>
+
+<p>
+
+{session.date}
+
+</p>
+
+<p>
+
+{session.time}
+
+</p>
+
+</div>
+
+)
+
+)
+
+)}
+
+</section>
+
+<br />
+
+<section>
+
+<div
+style={{
+display:"flex",
+justifyContent:"space-between",
+alignItems:"center"
+}}
+>
+
+<button
+onClick={
+previousMonth
+}
+
+>
+
+←
+
+</button>
+
+<h2>
+
+{month}
+
+{" "}
+
+{year}
+
+</h2>
+
+<button
+onClick={
+nextMonth
+}
+
+>
+
+→
+
+</button>
+
+</div>
+
+<div
+style={{
+
+display:"grid",
+
+gridTemplateColumns:
+"repeat(7,1fr)",
+
+gap:"10px"
+
+}}
+
+>
+
+{days.map(
+(day)=>{
+
+const fullDate =
+
+`${year}-${String(
+currentDate.getMonth()+1
+).padStart(2,"0")}-${String(
+day
+).padStart(2,"0")}`
+
+const event =
+sessions.find(
+s=>
+s.date===fullDate
+)
+
+return (
+
+<button
+
+key={day}
+
+onClick={()=>
+
+event
+
+?
+
+openSession(
+event
+)
+
+:
+
+selectDay(
+day
+)
+
+}
+
+style={{
+
+padding:"18px",
+
+borderRadius:"12px",
+
+border:"none",
+
+background:
+
+event
+
+?
+
+"#4f46e5"
+
+:
+
+"white",
+
+color:
+
+event
+
+?
+
+"white"
+
+:
+
+"black",
+
+cursor:"pointer"
+
+}}
+
+>
+
+<div>
+
+{day}
+
+</div>
+
+{event && (
+
+<div
+style={{
+fontSize:"10px"
+}}
+>
+
+●
+
+</div>
+
+)}
+
+</button>
+
+)
+
+}
+)}
+
+</div>
+
+</section>
+
+<br />
+
+<section
+ref={formRef}
+style={{
+background:"white",
+padding:"20px",
+borderRadius:"14px"
+}}
+>
+
+<h2>
+
+Create Session
+
+</h2>
+
+<form
+onSubmit={
+createSession
+}
+>
+
+<input
+
+name="title"
+
+placeholder=
+"Session Title"
+
+value={
+form.title
+}
+
+onChange={
+update
+}
+
+/>
+
+<br />
+<br />
+
+<select
+
+name="type"
+
+value={
+form.type
+}
+
+onChange={
+update
+}
+
+>
+
+<option>
+
+Online
+
+</option>
+
+<option>
+
+Physical
+
+</option>
+
+</select>
+
+<br />
+<br />
+
+<input
+
+type="date"
+
+name="date"
+
+value={
+form.date
+}
+
+onChange={
+update
+}
+
+/>
+
+<br />
+<br />
+
+<input
+
+type="time"
+
+name="time"
+
+value={
+form.time
+}
+
+onChange={
+update
+}
+
+/>
+
+<br />
+<br />
+
+{form.type==="Online" && (
+
+<input
+
+name="link"
+
+placeholder=
+"Meeting Link"
+
+value={
+form.link
+}
+
+onChange={
+update
+}
+
+/>
+
+)}
+
+{form.type==="Physical" && (
+
+<input
+
+name="location"
+
+placeholder=
+"Place"
+
+value={
+form.location
+}
+
+onChange={
+update
+}
+
+/>
+
+)}
+
+<br />
+<br />
+
+<button
+type="submit"
+
+>
+
+Create Session
+
+</button>
+
+</form>
+
+</section>
+
+</main>
+
+)
+
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1782296236866",
+    "title": "booo",
+    "description": "",
+    "startTime": "2026-06-24T13:18",
+    "duration": 60,
+    "createdBy": "1782217710249",
+    "participants": [
+      "1782217710249"
+    ],
+    "createdAt": "2026-06-24T10:17:16.866Z"
+  },
+  {
+    "id": "1782296598625",
+    "title": "Busines",
+    "description": "",
+    "startTime": "2026-06-24T10:23:18.625Z",
+    "duration": 60,
+    "createdBy": "1782217710249",
+    "participants": [
+      "1782217710249"
+    ],
+    "createdAt": "2026-06-24T10:23:18.625Z"
+  }
+]
